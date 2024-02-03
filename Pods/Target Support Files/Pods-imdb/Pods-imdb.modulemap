@@ -1,0 +1,6 @@
+framework module Pods_imdb {
+  umbrella header "Pods-imdb-umbrella.h"
+
+  export *
+  module * { export * }
+}

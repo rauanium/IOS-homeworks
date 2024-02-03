@@ -1,2 +1,2 @@
-# IOS-homeworks
-created draft branch
+# imdbClone
+iOS app using TMDB API - all about movies
