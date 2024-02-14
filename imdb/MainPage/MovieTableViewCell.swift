@@ -9,7 +9,6 @@ import UIKit
 import Kingfisher
 import Lottie
 
-
 class MovieTableViewCell: UITableViewCell {
     var didTapFavorite: (() -> Void)?
     var moviePoster: UIImageView = {
@@ -67,7 +66,6 @@ class MovieTableViewCell: UITableViewCell {
         moviePoster.addSubview(likeAnimationView)
         selectionStyle = .none
         backgroundColor = .clear
-        
         
         moviePoster.snp.makeConstraints { make in
             make.top.equalToSuperview()

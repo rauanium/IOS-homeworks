@@ -280,7 +280,7 @@ class MovieDetailsViewController: BaseViewController {
         
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
-            make.top.left.right.bottom.equalToSuperview()
+            make.left.right.bottom.equalToSuperview()
         }
         
         contentView.snp.makeConstraints { make in

@@ -121,18 +121,13 @@ class MainViewController: UIViewController {
         setupViews()
         genresCollectionView.allowsMultipleSelection = false
         movieStatusCollectionView.allowsMultipleSelection = false
-        navigationController?.navigationBar.backgroundColor = .clear
         loadFavoriteMovies()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animate()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
-        
     }
     
     private func loadGenres(){

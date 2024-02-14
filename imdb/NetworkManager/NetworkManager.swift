@@ -15,8 +15,6 @@ class NetworkManager {
     private var keychainSessionID = KeychainWrapper.standard.string(forKey: "sessionID")
     private let urlString: String = "https://api.themoviedb.org"
     private var apiKey: String = "88a63ecadd449652c81ed00b8200dcbf"
-    
-    
     private let session = URLSession(configuration: .default)
     
     private lazy var urlComponents: URLComponents = {
@@ -26,8 +24,7 @@ class NetworkManager {
         apiKey = (keychainSessionID != nil) ? keychainSessionID! : apiKey
         
         components.queryItems = [
-            
-            URLQueryItem(name: "api_key", value: apiKey)
+            URLQueryItem(name: "api_key", value: apiKey),
         ]
         return components
     }()
@@ -84,7 +81,6 @@ class NetworkManager {
             }
         }
     }
-    
     
     func loadMovieDetails(id: Int, completion: @escaping (MovieDetailsEntity) -> Void){
         print("---------------load movies-------------")
@@ -203,7 +199,6 @@ class NetworkManager {
         }
     }
     
-    
     func loadActorImages(id: Int, completion: @escaping(ActorImagesModel) -> Void){
         
         var components = urlComponents
@@ -226,8 +221,7 @@ class NetworkManager {
             }
         }
     }
-    
-    
+        
     func loadActorsMovies(id: Int, completion: @escaping (ActorsMoviesModel) -> Void) {
         
         var components = urlComponents
@@ -274,7 +268,6 @@ class NetworkManager {
         }
     }
     
-    
     func getRequestToken(completion: @escaping (APIResult<RequestTokenModel>) -> Void) {
         let requestTokenURL = "https://api.themoviedb.org/3/authentication/token/new"
         if let url = URL(string: requestTokenURL) {
@@ -297,7 +290,6 @@ class NetworkManager {
         }
     }
     
-    
     func validateWithLogin(requestBody: [String: Any], completion: @escaping (APIResult<RequestTokenModel>) -> Void) {
         let requestTokenURL = "https://api.themoviedb.org/3/authentication/token/validate_with_login"
         
@@ -305,7 +297,6 @@ class NetworkManager {
         components.path = "/3/authentication/token/validate_with_login"
         var requestHeaders = headers
         requestHeaders["Content-Type"] = "application/json"
-        
         
         if let url = URL(string: requestTokenURL) {
             AF.request(url, method: .post, parameters: requestBody, encoding: JSONEncoding.default, headers: requestHeaders).responseData { response in
@@ -362,11 +353,31 @@ class NetworkManager {
         }
     }
     
-    
-        
-//https://api.themoviedb.org/3/person/1190668/images?api_key=821fba2e86cbb574aecf827d251585b9 - actor images
-//https://api.themoviedb.org/3/person/1190668/movie_credits?api_key=821fba2e86cbb574aecf827d251585b9 - actors movies
-
-    
-    
+    func loadSearchQuery(with letter: String, completion: @escaping ([SearchResult]) -> Void){
+        print("APIKEY: \(apiKey)")
+        var components = urlComponents
+        components.queryItems = [
+            URLQueryItem(name: "query", value: letter),
+            URLQueryItem(name: "include_adult", value: "false"),
+            URLQueryItem(name: "language", value: "en-US"),
+          ]
+        components.path = "/3/search/movie"
+        guard let requestURL = components.url else { return }
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(SearchResultModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData.results)
+                    }
+                }
+                catch {
+                    print("error in network: \(error)")
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
 }

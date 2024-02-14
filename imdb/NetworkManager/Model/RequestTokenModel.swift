@@ -34,11 +34,9 @@ struct ValidateAuthenticationModel: Encodable {
         return [
             "username": self.username,
             "password": self.password,
-            "request_token": self.requestToken,
+            "request_token": self.requestToken
         ]
     }
-    
-    
 }
 
 

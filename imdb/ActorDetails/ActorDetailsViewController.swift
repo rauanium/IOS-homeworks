@@ -439,10 +439,15 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photoGalleryViewController = PhotoGalleryViewController()
-        photoGalleryViewController.photoID = indexPath.row
-        photoGalleryViewController.actorID = actorId
         photoGalleryViewController.actorPhotos = actorImages
+        photoGalleryViewController.photoID = indexPath
+        
         navigationController?.pushViewController(photoGalleryViewController, animated: true)
+        
+        
+                
+        
+        
     }
     
     

@@ -35,8 +35,6 @@ class ProfileViewController: UIViewController {
         return loginButton
     }()
     
-    
-    
     //MARK: - ui elements if sessionID is created
     var networkManager = NetworkManager.shared
     let dispatchGroup = DispatchGroup()
@@ -94,7 +92,6 @@ class ProfileViewController: UIViewController {
         } else {
             setupViews()
             userLabel.text = keychainUserName ?? "user not defined"
-            
         }
     }
     
@@ -130,20 +127,17 @@ class ProfileViewController: UIViewController {
     
     @objc
     private func didTapLoginButton(){
-//        print("tapped")
         let loginViewController = LoginViewController()
-//        present(loginViewController, animated: true)
         navigationController?.pushViewController(loginViewController, animated: true)
     }
     
     //MARK: - ui elements if user has sessionID
     private func setupUI() {
         view.backgroundColor = .white
-        self.navigationItem.title = "Log In"
-        [emailTextField, passwordTextField, statusText, submitButton].forEach {
+        self.navigationItem.title = "Profile Log In"
+        [emailTextField, passwordTextField, statusText, submitButton, showHidePasswordButton].forEach {
             view.addSubview($0)
         }
-        passwordTextField.addSubview(showHidePasswordButton)
         
         emailTextField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).inset(16)
@@ -154,10 +148,10 @@ class ProfileViewController: UIViewController {
             make.left.right.equalTo(emailTextField)
         }
         showHidePasswordButton.snp.makeConstraints { make in
-            make.right.equalToSuperview()
-            make.centerY.equalToSuperview()
-            make.height.equalTo(20)
-            make.width.equalTo(40)
+            make.right.equalTo(passwordTextField.snp.right)
+            make.centerY.equalTo(passwordTextField.snp.centerY)
+            make.height.equalTo(50)
+            make.width.equalTo(70)
         }
         
         statusText.snp.makeConstraints { make in
@@ -175,14 +169,11 @@ class ProfileViewController: UIViewController {
     @objc
     private func didTogglePassword(){
         passwordStatus = !passwordStatus
+        passwordTextField.isSecureTextEntry = passwordStatus
         if passwordStatus {
-            passwordTextField.isSecureTextEntry = true
             showHidePasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
-            
         } else {
-            passwordTextField.isSecureTextEntry = false
             showHidePasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
-            
         }
     }
     
@@ -211,7 +202,6 @@ class ProfileViewController: UIViewController {
             usleep(1100000)
             self.setupViews()
         }
-        
     }
     
     private func validateWithLogin(with data: ValidateAuthenticationModel) {
@@ -249,8 +239,6 @@ class ProfileViewController: UIViewController {
             }
         }
     }
-//    aida.moldaly
-//    Standartny2020
     
     private func saveSessionID(with sessionID: String) {
         dispatchGroup.enter()
@@ -270,8 +258,6 @@ class ProfileViewController: UIViewController {
             statusText.textColor = .red
         }
         dispatchGroup.leave()
-        
-        
     }
     
     func showAlert(title: String, message: String) {
@@ -280,14 +266,4 @@ class ProfileViewController: UIViewController {
             print("alert was called")
         }))
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

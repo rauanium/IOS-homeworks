@@ -22,7 +22,7 @@ class MainTabBarViewController: UITabBarController {
         UINavigationController(rootViewController: MainViewController()),
         ForYouViewController(),
         UINavigationController(rootViewController: FavoriteViewController()),
-        SearchViewController(),
+        UINavigationController(rootViewController: SearchViewController()),
         UINavigationController(rootViewController: ProfileViewController())
     ]
     
@@ -39,7 +39,5 @@ class MainTabBarViewController: UITabBarController {
             items[i].title = tabBarTitles[i]
             items[i].image = tabBarIcons[i]
         }
-        
-    }
-     
+    }     
 }

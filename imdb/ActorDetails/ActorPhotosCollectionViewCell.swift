@@ -8,7 +8,7 @@ import Kingfisher
 import UIKit
 
 class ActorPhotosCollectionViewCell: UICollectionViewCell {
-    var actorPhoto: UIImageView = {
+    private var actorPhoto: UIImageView = {
         let actorPhoto = UIImageView()
         actorPhoto.layer.cornerRadius = 10
         actorPhoto.layer.masksToBounds = true
@@ -17,7 +17,7 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
         actorPhoto.contentMode = .scaleAspectFill
         return actorPhoto
     }()
-    let imageBlurView: UIView = {
+    private let imageBlurView: UIView = {
         let imageBlurView = UIView()
         imageBlurView.frame.size.width = 100
         imageBlurView.frame.size.height = 200
@@ -26,7 +26,7 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
         return imageBlurView
     }()
     
-    var actorsPhotosCountLabel: UILabel = {
+    private var actorsPhotosCountLabel: UILabel = {
         let actorsPhotosCountLabel = UILabel()
         actorsPhotosCountLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         return actorsPhotosCountLabel
@@ -41,7 +41,7 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupViews(){
+    private func setupViews(){
         contentView.addSubview(actorPhoto)
         
         actorPhoto.snp.makeConstraints { make in
@@ -50,7 +50,8 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
             make.edges.equalToSuperview()
         }
     }
-    func configure(imagePath: String?, fourthImage: Int, totalNumberOfPhotos: Int){        
+    
+    func configure(imagePath: String?, fourthImage: Int, totalNumberOfPhotos: Int){
         if fourthImage == 3 {
             blurImage(actorsPhotosNumber: totalNumberOfPhotos)
         }
@@ -58,16 +59,9 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
         let actorPhotoPathURL = "https://image.tmdb.org/t/p/w200\(imagePath ?? "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png")"
         let url = URL(string: actorPhotoPathURL)!
         actorPhoto.kf.setImage(with: url)
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            if let data = try? Data(contentsOf: url){
-//                DispatchQueue.main.async {
-//                    self.actorPhoto.image = UIImage(data: data)
-//                }
-//            }
-//        }
     }
     
-    func blurImage(actorsPhotosNumber: Int){
+    private func blurImage(actorsPhotosNumber: Int){
         actorPhoto.addSubview(imageBlurView)
         actorPhoto.addSubview(actorsPhotosCountLabel)
         actorsPhotosCountLabel.text = "+\(actorsPhotosNumber - 3)"
@@ -80,5 +74,4 @@ class ActorPhotosCollectionViewCell: UICollectionViewCell {
             make.edges.equalToSuperview()
         }
     }
-    
 }

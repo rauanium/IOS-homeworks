@@ -9,7 +9,7 @@ import UIKit
 
 class ActrosMoviesCollectionViewCell: UICollectionViewCell {
     
-    var moviesPoster: UIImageView = {
+    private var moviesPoster: UIImageView = {
         let moviesPoster = UIImageView()
         moviesPoster.contentMode = .scaleAspectFill
         moviesPoster.clipsToBounds = true
@@ -17,7 +17,7 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
         return moviesPoster
     }()
     
-    var movieTitle: UILabel = {
+    private var movieTitle: UILabel = {
         let movieTitle = UILabel()
         movieTitle.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         movieTitle.numberOfLines = 0
@@ -25,7 +25,7 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
         return movieTitle
     }()
     
-    var movieReleaseYear: UILabel = {
+    private var movieReleaseYear: UILabel = {
         let movieReleaseYear = UILabel()
         movieReleaseYear.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         movieReleaseYear.textColor = .gray
@@ -43,7 +43,7 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupViews(){
+    private func setupViews(){
         [moviesPoster, movieTitle, movieReleaseYear].forEach {
             contentView.addSubview($0)
         }
@@ -73,18 +73,7 @@ class ActrosMoviesCollectionViewCell: UICollectionViewCell {
         let urlString = "https://image.tmdb.org/t/p/w200\(posterPath)"
         let url = URL(string: urlString)!
         moviesPoster.kf.setImage(with: url)
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            if let data = try? Data(contentsOf: url) {
-//                DispatchQueue.main.async {
-//                    self.moviesPoster.image = UIImage(data: data)
-//                }
-//            }
-//        }
         movieTitle.text = originalTitle
         movieReleaseYear.text = releaseYear
-        
     }
-    
-    
-    
 }

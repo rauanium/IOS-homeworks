@@ -16,7 +16,7 @@ struct MovieModel: Codable {
 }
 
 // MARK: - Result
-struct Result: Codable {
+struct Result: Codable, Hashable {
     let backdropPath: String?
     let genreIDS: [Int]
     let id: Int
