@@ -122,7 +122,7 @@ class MainViewController: UIViewController {
     
     private lazy var emptyStateView: EmptyStateView = {
         let emptyStateView = EmptyStateView()
-        emptyStateView.configure(image: UIImage(named: "mainPage")!, title: "Something went wrong", subtitle: "Try reload page")
+        emptyStateView.configure(image: UIImage(named: "emptyStateMain")!, title: "Something went wrong", subtitle: "Try reload page")
         emptyStateView.isHidden = true
         return emptyStateView
     }()

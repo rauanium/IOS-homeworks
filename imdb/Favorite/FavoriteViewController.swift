@@ -17,14 +17,6 @@ class FavoriteViewController: UIViewController {
         }
     }
     
-    private var titleLabel: UILabel = {
-        let titleLabel = UILabel()
-        titleLabel.text = "Favorite"
-        titleLabel.font = UIFont.systemFont(ofSize: 42, weight: .bold)
-        titleLabel.alpha = 1
-        return titleLabel
-    }()
-    
     private lazy var movieTableView: UITableView = {
         let movieTableView = UITableView()
         movieTableView.delegate = self
@@ -107,20 +99,16 @@ class FavoriteViewController: UIViewController {
     //MARK: - Constraints
     extension FavoriteViewController {
         private func setupViews(){
+            navigationItem.title = "Favourites"
             view.backgroundColor = .white
             
-            [titleLabel, movieTableView, emptyStateView].forEach {
+            [movieTableView, emptyStateView].forEach {
                 view.addSubview($0)
             }
             
-            titleLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview()
-                make.centerX.equalToSuperview()
-            }
-            
             movieTableView.snp.makeConstraints { make in
-                make.top.equalTo(titleLabel.snp.bottom).offset(16)
-                make.right.left.bottom.equalToSuperview()
+                make.top.equalTo(view.safeAreaLayoutGuide)
+                make.right.left.bottom.equalTo(view.safeAreaLayoutGuide)
             }
             emptyStateView.snp.makeConstraints { make in
                 make.edges.equalTo(movieTableView)

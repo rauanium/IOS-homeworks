@@ -52,8 +52,10 @@ class SearchViewController: UIViewController {
     
     private func setupViews() {
         view.backgroundColor = .white
-        view.addSubview(searchBar)
-        view.addSubview(movieList)
+        navigationItem.title = "Search"
+        [searchBar, movieList, emptyStateView].forEach {
+            view.addSubview($0)
+        }
         searchBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
             make.left.right.equalToSuperview()
@@ -61,8 +63,8 @@ class SearchViewController: UIViewController {
         }
         
         movieList.snp.makeConstraints { make in
-            make.top.equalTo(searchBar.snp.bottom).offset(16)
-            make.left.right.bottom.equalToSuperview()
+            make.top.equalTo(searchBar.snp.bottom).offset(8)
+            make.left.right.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         emptyStateView.snp.makeConstraints { make in
             make.edges.equalTo(movieList)
@@ -75,7 +77,13 @@ class SearchViewController: UIViewController {
             case .success(let movies):
                 self.searchedResult = movies
                 print("rec: \(movies)")
-                self.handleEmptyStateView(show: false)
+//                self.handleEmptyStateView(show: false)
+                if self.searchedResult.isEmpty  {
+                    self.handleEmptyStateView(show: true)
+                } else {
+                    self.handleEmptyStateView(show: false)
+                }
+                
             case .failure:
                 self.handleEmptyStateView(show: true)
             }
@@ -85,6 +93,11 @@ class SearchViewController: UIViewController {
     private func loadRecomendedMovies() {
         networkManager.loadRecomendedMovies(with: 787699) { recomendedMovies in
             self.searchedResult = recomendedMovies
+            if self.searchedResult.isEmpty  {
+                self.handleEmptyStateView(show: true)
+            } else {
+                self.handleEmptyStateView(show: false)
+            }
         }
     }
     private func handleEmptyStateView(show: Bool) {

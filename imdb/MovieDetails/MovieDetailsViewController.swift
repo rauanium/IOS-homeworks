@@ -218,8 +218,6 @@ class MovieDetailsViewController: BaseViewController {
         setupViews()
         setupNavigationController()
         
-        
-//        trying it here
         loadWatchListMovies()
 
         exists = watchListMovies.contains { movie in
@@ -227,14 +225,13 @@ class MovieDetailsViewController: BaseViewController {
         }
         
         if exists {
-            addToFavourites.setTitle("Remove from Favorites", for: .normal)
+            addToFavourites.setTitle("Remove from Watchlist", for: .normal)
             addToFavourites.backgroundColor = .red
         }
         else {
-            addToFavourites.setTitle("Add to Favorites", for: .normal)
+            addToFavourites.setTitle("Add to Watchlist", for: .normal)
             addToFavourites.backgroundColor = .blue
         }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -245,7 +242,6 @@ class MovieDetailsViewController: BaseViewController {
     @objc
     private func didAddToFavourites() {
         loadWatchListMovies()
-        
         exists = watchListMovies.contains { movie in
             movie.value(forKeyPath: "id") as? Int == movieId
         }
@@ -587,7 +583,6 @@ extension MovieDetailsViewController {
                 
                 //MARK: - getting movie genres
                 self?.movieGenres = movieDetails.genres
-                
             }
         }
     }
@@ -598,6 +593,7 @@ extension MovieDetailsViewController {
         concurrentDispatch.async {
             self.networkManager.loadMovieCast(id: self.movieId) { [weak self] movieCast in
                 self?.cast = movieCast.cast
+                print("movieCast: \(movieCast)")
             }
             self.dispatchGroup.leave()
         }

@@ -10,7 +10,7 @@ import Foundation
 // MARK: - MovieCast
 struct MovieCastModel: Codable {
     let id: Int
-    let cast, crew: [Cast]
+    let cast: [Cast]
 }
 
 // MARK: - Cast

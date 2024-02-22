@@ -36,6 +36,7 @@ class WatchListViewController: UIViewController {
         super.viewDidLoad()
         setupViews()
     }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadMovies()
@@ -43,12 +44,14 @@ class WatchListViewController: UIViewController {
     
     private func setupViews() {
         view.backgroundColor = .white
-        view.addSubview(moviesTableView)
+        [moviesTableView, emptyStateView].forEach {
+            view.addSubview($0)
+        }
         navigationItem.title = "Watchlist"
         moviesTableView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
-            make.left.right.equalToSuperview().inset(16)
-            make.bottom.equalToSuperview()
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         emptyStateView.snp.makeConstraints { make in
             make.edges.equalTo(moviesTableView)
