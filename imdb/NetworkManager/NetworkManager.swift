@@ -34,9 +34,7 @@ class NetworkManager {
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4YzIyYzEwNjdjZWM3OWRlMDgyODg5Mjg5NGUzMWJkYyIsInN1YiI6IjY1YjIzYzE3MGYyZmJkMDEzMDY2YTBiNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Mp_XUBq4oK4yBkE0QWgpQE-uhK_5ayYAdfjJPRkVyv0"
     ]
     
-    func loadMovies(with movieStatus: String, completion: @escaping ([Result]) -> Void){
-        
-        print("APIKEY: \(apiKey)")
+    func loadMovies(with movieStatus: String, completion: @escaping (APIResult<[Result]>) -> Void){
         var components = urlComponents
         components.path = "/3/movie/\(movieStatus)"
         guard let requestURL = components.url else { return }
@@ -47,7 +45,7 @@ class NetworkManager {
                 do {
                     let decodedData = try JSONDecoder().decode(MovieModel.self, from: data)
                     DispatchQueue.main.async {
-                        completion(decodedData.results)
+                        completion(.success(decodedData.results))
                     }
                 }
                 catch {
@@ -353,7 +351,7 @@ class NetworkManager {
         }
     }
     
-    func loadSearchQuery(with letter: String, completion: @escaping ([SearchResult]) -> Void){
+    func loadSearchQuery(with letter: String, completion: @escaping (APIResult<[SearchResult]>) -> Void){
         print("APIKEY: \(apiKey)")
         var components = urlComponents
         components.queryItems = [
@@ -369,11 +367,41 @@ class NetworkManager {
                 do {
                     let decodedData = try JSONDecoder().decode(SearchResultModel.self, from: data)
                     DispatchQueue.main.async {
-                        completion(decodedData.results)
+                        completion(.success(decodedData.results))
                     }
                 }
                 catch {
                     print("error in network: \(error)")
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    
+    
+    func loadRecomendedMovies(with id: Int, completion:@escaping ([SearchResult]) -> Void){
+        var components = urlComponents
+        components.path = "/3/movie/\(id)/recommendations"
+        components.queryItems = [
+            URLQueryItem(name: "language", value: "en-US"),
+            URLQueryItem(name: "page", value: "1")
+            
+          ]
+        guard let requestURL = components.url else { return }
+        print("recommendedurl: \(requestURL)")
+        AF.request(requestURL, headers: headers).responseData { response in
+            switch response.result {
+            case .success(let data):
+                do {
+                    let decodedData = try JSONDecoder().decode(SearchResultModel.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(decodedData.results)
+                    }
+                }
+                catch {
+                    print("Error in loading recomended movies. \(error)")
                 }
             case .failure(let error):
                 print(error)

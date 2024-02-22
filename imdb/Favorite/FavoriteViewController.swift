@@ -21,7 +21,7 @@ class FavoriteViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = "Favorite"
         titleLabel.font = UIFont.systemFont(ofSize: 42, weight: .bold)
-        titleLabel.alpha = 0
+        titleLabel.alpha = 1
         return titleLabel
     }()
     
@@ -29,10 +29,18 @@ class FavoriteViewController: UIViewController {
         let movieTableView = UITableView()
         movieTableView.delegate = self
         movieTableView.dataSource = self
+        movieTableView.backgroundColor = .clear
         movieTableView.register(MovieTableViewCell.self, forCellReuseIdentifier: "movieCell")
         movieTableView.separatorStyle = .none
         movieTableView.showsVerticalScrollIndicator = false
         return movieTableView
+    }()
+    
+    private lazy var emptyStateView: EmptyStateView = {
+        let emptyStateView = EmptyStateView()
+        emptyStateView.isHidden = false
+        emptyStateView.configure(image: UIImage(named: "emptyStateFavourite")!, title: "You do not have favourite movies ", subtitle: "Try adding some")
+        return emptyStateView
     }()
     //MARK: - Lifecycle
     override func viewDidLoad() {
@@ -45,6 +53,11 @@ class FavoriteViewController: UIViewController {
         loadMovies()
     }
     //MARK: - Methods
+    
+    private func handleEmptyStateView(show: Bool) {
+        emptyStateView.isHidden = !show
+    }
+    
     private func loadMovies() {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
@@ -53,7 +66,14 @@ class FavoriteViewController: UIViewController {
         
         do {
             favoriteMovies = try managedContext.fetch(fetchRequest)
+            if favoriteMovies == [] {
+                handleEmptyStateView(show: true)
+            } else {
+                handleEmptyStateView(show: false)
+            }
+            
         } catch let error as NSError {
+            
             print("Could not fetch. Error: \(error)")
         }
     }
@@ -89,18 +109,21 @@ class FavoriteViewController: UIViewController {
         private func setupViews(){
             view.backgroundColor = .white
             
-            [titleLabel, movieTableView].forEach {
+            [titleLabel, movieTableView, emptyStateView].forEach {
                 view.addSubview($0)
             }
             
             titleLabel.snp.makeConstraints { make in
-                make.top.equalTo(view.safeAreaLayoutGuide)
+                make.top.equalToSuperview()
                 make.centerX.equalToSuperview()
             }
             
             movieTableView.snp.makeConstraints { make in
                 make.top.equalTo(titleLabel.snp.bottom).offset(16)
                 make.right.left.bottom.equalToSuperview()
+            }
+            emptyStateView.snp.makeConstraints { make in
+                make.edges.equalTo(movieTableView)
             }
         }
     }

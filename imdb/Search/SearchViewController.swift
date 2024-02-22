@@ -8,7 +8,7 @@
 import UIKit
 
 class SearchViewController: UIViewController {
-    
+    private var getRecommendedID = UserDefaults.standard.integer(forKey: "recommendedID")
     private lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.delegate = self
@@ -28,7 +28,12 @@ class SearchViewController: UIViewController {
         movieList.register(MovieTableViewCell.self, forCellReuseIdentifier: "movieCell")
         return movieList
     }()
-  
+    private lazy var emptyStateView: EmptyStateView = {
+        let emptyStateView = EmptyStateView()
+        emptyStateView.configure(image: UIImage(named: "emptyStateSearch")!, title: "Could not find", subtitle: "Try something different")
+        emptyStateView.isHidden = true
+        return emptyStateView
+    }()
     private lazy var searchedResult: [SearchResult] = []{
         didSet{
             self.movieList.reloadData()
@@ -37,10 +42,12 @@ class SearchViewController: UIViewController {
     
     private let themes = Themes.allCases
     private var networkManager = NetworkManager.shared
+    private var recomendMovieID = MainViewController.sharedRecomendMovieID
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadSearchQuery(searchText: "a")
         setupViews()
+        loadRecomendedMovies()
+        print("recID: \(getRecommendedID)")
     }
     
     private func setupViews() {
@@ -57,12 +64,31 @@ class SearchViewController: UIViewController {
             make.top.equalTo(searchBar.snp.bottom).offset(16)
             make.left.right.bottom.equalToSuperview()
         }
+        emptyStateView.snp.makeConstraints { make in
+            make.edges.equalTo(movieList)
+        }
     }
     
     private func loadSearchQuery(searchText: String) {
-        networkManager.loadSearchQuery(with: searchText) { movie in
-            self.searchedResult = movie
+        networkManager.loadSearchQuery(with: searchText) { result in
+            switch result {
+            case .success(let movies):
+                self.searchedResult = movies
+                print("rec: \(movies)")
+                self.handleEmptyStateView(show: false)
+            case .failure:
+                self.handleEmptyStateView(show: true)
+            }
         }
+    }
+    
+    private func loadRecomendedMovies() {
+        networkManager.loadRecomendedMovies(with: 787699) { recomendedMovies in
+            self.searchedResult = recomendedMovies
+        }
+    }
+    private func handleEmptyStateView(show: Bool) {
+        emptyStateView.isHidden = !show
     }
 }
 
@@ -86,7 +112,7 @@ extension SearchViewController: UISearchBarDelegate, UITableViewDataSource, UITa
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText == "" {
-            loadSearchQuery(searchText: "a")
+            loadRecomendedMovies()
         } else {
             loadSearchQuery(searchText: searchText)
         }

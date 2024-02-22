@@ -70,8 +70,8 @@ class MovieTableViewCell: UITableViewCell {
         moviePoster.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview().inset(16)
-            make.height.equalTo(560)
+            make.width.equalTo(250)
+            make.height.equalTo(400)
         }
         movieTitle.snp.makeConstraints { make in
             make.top.equalTo(moviePoster.snp.bottom)

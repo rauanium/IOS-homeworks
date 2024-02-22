@@ -1,14 +1,16 @@
 //
-//  MovieDetailsViewController.swift
+//  WatchListMovieDetailsViewController.swift
 //  imdb
 //
-//  Created by rauan on 12/19/23.
+//  Created by rauan on 2/21/24.
 //
-import SnapKit
+
 import UIKit
+import SnapKit
 import CoreData
 
-class MovieDetailsViewController: BaseViewController {
+class WatchListMovieDetailsViewController: BaseViewController {
+
     var movieId = Int()
     var exists: Bool = false
     var watchListMovies: [NSManagedObject] = []
@@ -206,35 +208,21 @@ class MovieDetailsViewController: BaseViewController {
     private lazy var addToFavourites: UIButton = {
         let addToFavourites = UIButton()
         addToFavourites.layer.cornerRadius = 4
-        addToFavourites.addTarget(self, action: #selector(didAddToFavourites), for: .touchUpInside)
+        addToFavourites.setTitle("Remove from Watchlist", for: .normal)
+        addToFavourites.backgroundColor = .red
+        addToFavourites.addTarget(self, action: #selector(didRemoveFromWatchList), for: .touchUpInside)
         return addToFavourites
     }()
     
     override func viewDidLoad() {
-        super.viewDidLoad()   
+        super.viewDidLoad()
         showLoader()
         loadData()
         loadCast()
         setupViews()
         setupNavigationController()
         
-        
-//        trying it here
         loadWatchListMovies()
-
-        exists = watchListMovies.contains { movie in
-            movie.value(forKeyPath: "id") as? Int == movieId
-        }
-        
-        if exists {
-            addToFavourites.setTitle("Remove from Favorites", for: .normal)
-            addToFavourites.backgroundColor = .red
-        }
-        else {
-            addToFavourites.setTitle("Add to Favorites", for: .normal)
-            addToFavourites.backgroundColor = .blue
-        }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -243,25 +231,9 @@ class MovieDetailsViewController: BaseViewController {
     }
     
     @objc
-    private func didAddToFavourites() {
-        loadWatchListMovies()
-        
-        exists = watchListMovies.contains { movie in
-            movie.value(forKeyPath: "id") as? Int == movieId
-        }
-        
-        if exists {
-            addToFavourites.setTitle("Add to Watchlist", for: .normal)
-            addToFavourites.backgroundColor = .blue
-            removeFromWatchList()
-            print("ketirdim")
-        }
-        else {
-            addToFavourites.setTitle("Remove from Watchlist", for: .normal)
-            addToFavourites.backgroundColor = .red
-            addToWatchList()
-            print("qostym")
-        }
+    private func didRemoveFromWatchList() {
+        removeFromWatchList()
+        self.navigationController?.popViewController(animated: true)
     }
     
     private func loadWatchListMovies() {
@@ -273,23 +245,6 @@ class MovieDetailsViewController: BaseViewController {
         }
         catch let error as NSError{
             print("Could not fetch. Error: \(error)")
-        }
-    }
-    
-    private func addToWatchList() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        guard let entity = NSEntityDescription.entity(forEntityName: "WatchList", in: managedContext) else { return }
-        let singleMovie = NSManagedObject(entity: entity, insertInto: managedContext)
-        guard let movie = watchListMoviesLoaded else { return }
-        singleMovie.setValue(movieId, forKey: "id")
-        singleMovie.setValue(movie.originalTitle, forKey: "title")
-        singleMovie.setValue(movie.posterPath, forKey: "posterPath")
-        print("movie added")
-        do {
-            try managedContext.save()
-        } catch let error as NSError {
-            print("Could not save. Error: \(error)")
         }
     }
     
@@ -555,7 +510,7 @@ class MovieDetailsViewController: BaseViewController {
     }
 }
 //MARK: - loading data of movie
-extension MovieDetailsViewController {
+extension WatchListMovieDetailsViewController {
     
     private func loadData() {
         
@@ -605,7 +560,7 @@ extension MovieDetailsViewController {
 }
     
 //MARK: - Stars counting
-extension MovieDetailsViewController {
+extension WatchListMovieDetailsViewController {
     private func countStars(from: Double?){
         guard  let stars = from else {
             return
@@ -641,7 +596,7 @@ extension MovieDetailsViewController {
 }
 
 //MARK: - Genres collection view
-extension MovieDetailsViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension WatchListMovieDetailsViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == castCollectionView {
             print("castCount: \(cast.count)")
@@ -683,10 +638,3 @@ extension MovieDetailsViewController: UICollectionViewDataSource, UICollectionVi
         navigationController?.pushViewController(actorDetailViewController, animated: true)
     }
 }
-
-
-    
-    
-    
-
-
