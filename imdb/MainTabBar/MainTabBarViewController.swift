@@ -9,8 +9,8 @@ import UIKit
 
 class MainTabBarViewController: UITabBarController {
     //MARK: - private properties
-    private let tabBarTitles: [String] = ["Home", "For you", "Favorites", "Search", "Profile"]
-    private let tabBarIcons: [UIImage?] = [UIImage(named: "icon_home"), UIImage(named: "icon_for_you"), UIImage(named: "icon_favorites"), UIImage(named: "icon_search"), UIImage(named: "icon_profile")]
+    private let tabBarTitles: [String] = ["Home", "Watchlist", "Favorites", "Search", "Profile"]
+    private let tabBarIcons: [UIImage?] = [UIImage(named: "icon_home"), UIImage(named: "icon_watchlist"), UIImage(named: "icon_favorites"), UIImage(named: "icon_search"), UIImage(named: "icon_profile")]
     
     //MARK: - VeiwController lifecycle
     override func viewDidLoad() {
@@ -20,9 +20,9 @@ class MainTabBarViewController: UITabBarController {
     }
     private var allViewControllers = [
         UINavigationController(rootViewController: MainViewController()),
-        ForYouViewController(),
+        UINavigationController(rootViewController: WatchListViewController()),
         UINavigationController(rootViewController: FavoriteViewController()),
-        SearchViewController(),
+        UINavigationController(rootViewController: SearchViewController()),
         UINavigationController(rootViewController: ProfileViewController())
     ]
     
@@ -39,7 +39,5 @@ class MainTabBarViewController: UITabBarController {
             items[i].title = tabBarTitles[i]
             items[i].image = tabBarIcons[i]
         }
-        
-    }
-     
+    }     
 }

@@ -9,7 +9,6 @@ import UIKit
 import Kingfisher
 import Lottie
 
-
 class MovieTableViewCell: UITableViewCell {
     var didTapFavorite: (() -> Void)?
     var moviePoster: UIImageView = {
@@ -68,12 +67,11 @@ class MovieTableViewCell: UITableViewCell {
         selectionStyle = .none
         backgroundColor = .clear
         
-        
         moviePoster.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview().inset(16)
-            make.height.equalTo(560)
+            make.width.equalTo(250)
+            make.height.equalTo(400)
         }
         movieTitle.snp.makeConstraints { make in
             make.top.equalTo(moviePoster.snp.bottom)

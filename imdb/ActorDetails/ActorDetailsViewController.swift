@@ -168,8 +168,6 @@ class ActorDetailsViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-//        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", image: UIImage(systemName: "chevron.left"), target: self, action: #selector(didTapButton))
-//        navigationController?.navigationBar.tintColor = .black
         showLoader()
         loadActorDetails()
         loadActorImages()
@@ -341,10 +339,6 @@ extension ActorDetailsViewController {
             }
             self.actorBiography.text = actorDetails.biography
         }
-
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 5){
-            
-//        }
     }
     //MARK: - load actor images
     
@@ -439,10 +433,15 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photoGalleryViewController = PhotoGalleryViewController()
-        photoGalleryViewController.photoID = indexPath.row
-        photoGalleryViewController.actorID = actorId
         photoGalleryViewController.actorPhotos = actorImages
+        photoGalleryViewController.photoID = indexPath
+        
         navigationController?.pushViewController(photoGalleryViewController, animated: true)
+        
+        
+                
+        
+        
     }
     
     

@@ -9,11 +9,14 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController {
+    static var sharedRecomendMovieID = MainViewController()
     static var idx: Int = 1
     private var lastSelectedIndexPath: IndexPath?
     private var lastSelectedIndexPathForGenres: IndexPath?
     private var favoriteMovies: [NSManagedObject] = []
-    
+    private var WatchlistMovies: [NSManagedObject] = []
+    private let defaults = UserDefaults.standard
+    private var moviesListID: Int?
     private var titleLabelYPosition: Constraint!
     private var genreCollectionIsHidden = false
     private var currentStatus = "now_playing"
@@ -107,13 +110,29 @@ class MainViewController: UIViewController {
     
     private lazy var movieTableView: UITableView = {
         let movieTableView = UITableView()
+        movieTableView.backgroundColor = .clear
         movieTableView.delegate = self
         movieTableView.dataSource = self
         movieTableView.register(MovieTableViewCell.self, forCellReuseIdentifier: "movieCell")
         movieTableView.separatorStyle = .none
         movieTableView.showsVerticalScrollIndicator = false
+        movieTableView.refreshControl = refreshControl
         return movieTableView
     }()
+    
+    private lazy var emptyStateView: EmptyStateView = {
+        let emptyStateView = EmptyStateView()
+        emptyStateView.configure(image: UIImage(named: "emptyStateMain")!, title: "Something went wrong", subtitle: "Try reload page")
+        emptyStateView.isHidden = true
+        return emptyStateView
+    }()
+    
+    private lazy var refreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.addTarget(self, action: #selector(didRefresh), for: .valueChanged)
+        return control
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadGenres()
@@ -121,18 +140,22 @@ class MainViewController: UIViewController {
         setupViews()
         genresCollectionView.allowsMultipleSelection = false
         movieStatusCollectionView.allowsMultipleSelection = false
-        navigationController?.navigationBar.backgroundColor = .clear
         loadFavoriteMovies()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animate()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
-        
+    }
+    
+    @objc
+    private func didRefresh() {
+        loadData()
+    }
+    
+    private func handleEmptyStateView(show: Bool) {
+        emptyStateView.isHidden = !show
     }
     
     private func loadGenres(){
@@ -144,10 +167,17 @@ class MainViewController: UIViewController {
     }
     
     private func loadData(){
-        networkManager.loadMovies(with: currentStatus) { [weak self] movies in
-//            self?.result = movies
-            self?.allResults = movies
-            self?.obtainMovieList(with: MainViewController.idx)
+        networkManager.loadMovies(with: currentStatus) { [weak self] result in
+            self?.refreshControl.endRefreshing()
+            switch result {
+            case .success(let movies):
+                self?.allResults = movies
+                self?.moviesListID = movies[0].id
+                self?.obtainMovieList(with: MainViewController.idx)
+                self?.handleEmptyStateView(show: false)
+            case .failure:
+                self?.handleEmptyStateView(show: true)
+            }
         }
     }
     
@@ -171,6 +201,19 @@ class MainViewController: UIViewController {
         do {
             favoriteMovies = try managedContext.fetch(fetchRequest)
             movieTableView.reloadData()
+        } catch let error as NSError {
+            print("Could not fetch. Error: \(error)")
+        }
+    }
+    
+    private func loadWatchlistMovies() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "WatchList")
+        
+        do {
+            WatchlistMovies = try managedContext.fetch(fetchRequest)
         } catch let error as NSError {
             print("Could not fetch. Error: \(error)")
         }
@@ -216,6 +259,21 @@ class MainViewController: UIViewController {
         }
     }
     
+    
+    func recomendMovieID() {
+        if let favouriteMovieID = favoriteMovies[0].value(forKeyPath: "id") as? Int {
+            print("fav \(favouriteMovieID)")
+            defaults.setValue(favouriteMovieID, forKey: "recommendedID")
+        }
+        else if let watchListMovieID = WatchlistMovies[0].value(forKeyPath: "id") as? Int {
+            print("watch \(watchListMovieID)")
+            defaults.setValue(watchListMovieID, forKey: "recommendedID")
+        }
+        else {
+            defaults.setValue(result[0].id, forKey: "recommendedID")
+        }
+        
+    }
     
     @objc func imageTapped(){
         if genreCollectionIsHidden {
@@ -289,9 +347,15 @@ extension MainViewController {
         foldableStackView.addArrangedSubview(arrowButton)
         foldableStackView.addArrangedSubview(genresCollectionView)
         
-        [themeLabel, movieStatusCollectionView, movieTableView, foldableStackView].forEach {
+        [themeLabel, 
+         movieStatusCollectionView,
+         foldableStackView,
+         movieTableView,
+         emptyStateView,
+         ].forEach {
             containerView.addSubview($0)
         }
+        containerView.bringSubviewToFront(movieTableView)
         
         containerView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(8)
@@ -333,7 +397,12 @@ extension MainViewController {
         
         movieTableView.snp.makeConstraints { make in
             make.top.equalTo(foldableStackView.snp.bottom).offset(16)
-            make.right.left.bottom.equalToSuperview()
+            make.right.left.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        emptyStateView.snp.makeConstraints { make in
+            make.edges.equalTo(movieTableView)
         }
     }
 }

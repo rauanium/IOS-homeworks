@@ -7,6 +7,7 @@
 
 import UIKit
 import SwiftKeychainWrapper
+import Lottie
 
 class LoginViewController: UIViewController {
     var networkManager = NetworkManager.shared
@@ -16,16 +17,17 @@ class LoginViewController: UIViewController {
     let dispatchGroup = DispatchGroup()
     private lazy var emailTextField: UITextField = {
         let emailTextField = UITextField()
-        emailTextField.placeholder = "Emter email"
+        emailTextField.placeholder = "Enter email"
         emailTextField.borderStyle = .roundedRect
         return emailTextField
     }()
     
     private lazy var passwordTextField: UITextField = {
         let passwordTextField = UITextField()
-        passwordTextField.placeholder = "Emter password"
+        passwordTextField.placeholder = "Enter password"
         passwordTextField.borderStyle = .roundedRect
         passwordTextField.isSecureTextEntry = true
+        passwordTextField.delegate = self
         return passwordTextField
     }()
     
@@ -34,6 +36,7 @@ class LoginViewController: UIViewController {
         showHidePasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
         showHidePasswordButton.tintColor = .black
         showHidePasswordButton.addTarget(self, action: #selector(didTogglePassword), for: .touchUpInside)
+        showHidePasswordButton.alpha = 0
         return showHidePasswordButton
     }()
     
@@ -60,10 +63,9 @@ class LoginViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .white
         self.navigationItem.title = "Log In"
-        [emailTextField, passwordTextField, statusText, loginButton].forEach {
+        [emailTextField, passwordTextField, statusText, loginButton, showHidePasswordButton].forEach {
             view.addSubview($0)
         }
-        passwordTextField.addSubview(showHidePasswordButton)
         
         emailTextField.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).inset(16)
@@ -74,10 +76,10 @@ class LoginViewController: UIViewController {
             make.left.right.equalTo(emailTextField)
         }
         showHidePasswordButton.snp.makeConstraints { make in
-            make.right.equalToSuperview()
-            make.centerY.equalToSuperview()
-            make.height.equalTo(20)
-            make.width.equalTo(40)
+            make.right.equalTo(passwordTextField.snp.right)
+            make.centerY.equalTo(passwordTextField.snp.centerY)
+            make.height.equalTo(50)
+            make.width.equalTo(70)
         }
         
         statusText.snp.makeConstraints { make in
@@ -85,22 +87,21 @@ class LoginViewController: UIViewController {
             make.left.right.equalTo(emailTextField)
             make.height.greaterThanOrEqualTo(20)
         }
+        
         loginButton.snp.makeConstraints { make in
             make.top.equalTo(statusText.snp.bottom).offset(16)
             make.left.right.equalTo(emailTextField)
             make.height.equalTo(44)
         }
     }
-    
+
     @objc
     private func didTogglePassword(){
         passwordStatus = !passwordStatus
+        passwordTextField.isSecureTextEntry = passwordStatus
         if passwordStatus {
-            passwordTextField.isSecureTextEntry = true
             showHidePasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
-            
         } else {
-            passwordTextField.isSecureTextEntry = false
             showHidePasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
         }
     }
@@ -125,14 +126,11 @@ class LoginViewController: UIViewController {
                 print("failed in button Function")
                 self?.showAlert(title: "Error", message: "Network connection error")
             }
-            
         }
         dispatchGroup.notify(queue: .main){
             usleep(1100000)
             self.navigationController?.popViewController(animated: true)
         }
-        
-        
     }
     
     private func validateWithLogin(with data: ValidateAuthenticationModel) {
@@ -196,5 +194,11 @@ class LoginViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
             print("alert was called")
         }))
+    }
+}
+
+extension LoginViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        showHidePasswordButton.alpha = 1
     }
 }

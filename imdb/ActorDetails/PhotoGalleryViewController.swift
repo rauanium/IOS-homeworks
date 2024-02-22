@@ -9,7 +9,7 @@ import UIKit
 
 class PhotoGalleryViewController: UIViewController {
     
-    var photoID = Int()
+    var photoID = IndexPath()
     var actorID = Int()
     var actorPhotos: [Profile] = []
     
@@ -25,7 +25,6 @@ class PhotoGalleryViewController: UIViewController {
         photoGalleryCollectionView.delegate = self
         photoGalleryCollectionView.isPagingEnabled = true
         photoGalleryCollectionView.register(PhotoGalleryCollectionViewCell.self, forCellWithReuseIdentifier: "photoGalleryCell")
-        
         return photoGalleryCollectionView
     }()
     
@@ -33,9 +32,12 @@ class PhotoGalleryViewController: UIViewController {
         super.viewDidLoad()
         setupViews()
         setupNavigationController()
-        self.photoGalleryCollectionView.scrollToItem(at:IndexPath(item: photoID, section: 0), at: .centeredHorizontally, animated: true)
+        
     }
-    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.photoGalleryCollectionView.scrollToItem(at: photoID, at: .top, animated: false)
+    }
     
     private func setupNavigationController(){
         let titleAttribute = [NSAttributedString.Key.foregroundColor: UIColor.white]
@@ -45,19 +47,21 @@ class PhotoGalleryViewController: UIViewController {
         let xmarkButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: #selector(exitButtonTapped))
         navigationItem.rightBarButtonItem = xmarkButton
     }
+    
     @objc private func exitButtonTapped(){
         navigationController?.popViewController(animated: true)
     }
     
     private func setupViews(){
         view.backgroundColor = .black
-        self.title = "\(photoID + 1)/\(actorPhotos.count)"
+        self.title = "\(photoID.row + 1)/\(actorPhotos.count)"
         view.addSubview(photoGalleryCollectionView)
         photoGalleryCollectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
     }
 }
+
 //MARK: - collection view delegate, datasource
 extension PhotoGalleryViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -69,9 +73,11 @@ extension PhotoGalleryViewController: UICollectionViewDelegate, UICollectionView
         cell.configure(actorsImagePath: actorPhotos[indexPath.row].filePath)
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         CGSize(width: collectionView.frame.width, height: collectionView.frame.height)
     }
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if let collectionView = scrollView as? UICollectionView {
             let visibleIndexPath = collectionView.indexPathsForVisibleItems

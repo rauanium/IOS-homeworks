@@ -26,7 +26,6 @@ class PhotoGalleryCollectionViewCell: UICollectionViewCell {
     
     private func setupViews(){
         contentView.addSubview(singlePhotoOfGalleryImageView)
-        
         singlePhotoOfGalleryImageView.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.left.right.equalToSuperview().inset(20)
@@ -38,17 +37,5 @@ class PhotoGalleryCollectionViewCell: UICollectionViewCell {
         let singlePhotoPath = "https://image.tmdb.org/t/p/w200\(actorsImagePath)"
         let url = URL(string: singlePhotoPath)!
         singlePhotoOfGalleryImageView.kf.setImage(with: url)
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            if let data = try? Data(contentsOf: url){
-//                DispatchQueue.main.async {
-//                    self.singlePhotoOfGalleryImageView.image = UIImage(data: data)
-//                }
-//            }
-//        }
-        
     }
-    
-    
-    
-    
 }
