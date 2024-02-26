@@ -9,7 +9,6 @@ import UIKit
 import CoreData
 
 class SearchViewController: UIViewController {
-    private var getRecommendedID = UserDefaults.standard.integer(forKey: "recommendedID")
     private lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.delegate = self
@@ -43,13 +42,13 @@ class SearchViewController: UIViewController {
     private var watchlistMovies: [NSManagedObject] = []
     private let themes = Themes.allCases
     private var networkManager = NetworkManager.shared
+    private var nowPlaying = MainViewController()
     
     
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        print("recID: \(getRecommendedID)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -123,7 +122,9 @@ class SearchViewController: UIViewController {
             return watchListMovieID
         }
         else {
-            return 787699
+            print("nowPLaying: \(UserDefaults.standard.integer(forKey: "recommendNowPlaying"))")
+            return UserDefaults.standard.integer(forKey: "recommendNowPlaying")
+            
         }
     }
     private func loadFavoriteMovies() {

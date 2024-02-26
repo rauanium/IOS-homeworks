@@ -220,6 +220,12 @@ class MovieDetailsViewController: BaseViewController {
         
         loadWatchListMovies()
 
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupNavigationController()
         exists = watchListMovies.contains { movie in
             movie.value(forKeyPath: "id") as? Int == movieId
         }
@@ -232,11 +238,6 @@ class MovieDetailsViewController: BaseViewController {
             addToFavourites.setTitle("Add to Watchlist", for: .normal)
             addToFavourites.backgroundColor = .blue
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setupNavigationController()
     }
     
     @objc

@@ -145,6 +145,7 @@ class MainViewController: UIViewController {
         animate()
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
+        returnRecommendedMovie()
     }
     
     @objc
@@ -242,6 +243,10 @@ class MainViewController: UIViewController {
         } catch let error as NSError {
             print("Could not delete. Error: \(error)")
         }
+    }
+    
+    func returnRecommendedMovie() {
+        UserDefaults.standard.setValue(result[0].id, forKey: "recommendNowPlaying")
     }
     
     @objc func imageTapped(){
