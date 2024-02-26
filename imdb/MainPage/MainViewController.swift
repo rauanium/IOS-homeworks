@@ -14,7 +14,6 @@ class MainViewController: UIViewController {
     private var lastSelectedIndexPath: IndexPath?
     private var lastSelectedIndexPathForGenres: IndexPath?
     private var favoriteMovies: [NSManagedObject] = []
-    private let defaults = UserDefaults.standard
     private var moviesListID: Int?
     private var titleLabelYPosition: Constraint!
     private var genreCollectionIsHidden = false
