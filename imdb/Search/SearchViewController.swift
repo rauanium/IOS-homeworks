@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class SearchViewController: UIViewController {
     private var getRecommendedID = UserDefaults.standard.integer(forKey: "recommendedID")
@@ -18,7 +19,6 @@ class SearchViewController: UIViewController {
         searchBar.isTranslucent = false
         return searchBar
     }()
-    
     private lazy var movieList: UITableView = {
         let movieList = UITableView()
         movieList.dataSource = self
@@ -39,17 +39,27 @@ class SearchViewController: UIViewController {
             self.movieList.reloadData()
         }
     }
-    
+    private var favoriteMovies: [NSManagedObject] = []
+    private var watchlistMovies: [NSManagedObject] = []
     private let themes = Themes.allCases
     private var networkManager = NetworkManager.shared
-    private var recomendMovieID = MainViewController.sharedRecomendMovieID
+    
+    
+    //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        loadRecomendedMovies()
         print("recID: \(getRecommendedID)")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadFavoriteMovies()
+        loadWatchlistMovies()
+        loadRecomendedMovies()
+    }
+    
+    //MARK: - Constraints
     private func setupViews() {
         view.backgroundColor = .white
         navigationItem.title = "Search"
@@ -77,7 +87,6 @@ class SearchViewController: UIViewController {
             case .success(let movies):
                 self.searchedResult = movies
                 print("rec: \(movies)")
-//                self.handleEmptyStateView(show: false)
                 if self.searchedResult.isEmpty  {
                     self.handleEmptyStateView(show: true)
                 } else {
@@ -91,7 +100,7 @@ class SearchViewController: UIViewController {
     }
     
     private func loadRecomendedMovies() {
-        networkManager.loadRecomendedMovies(with: 787699) { recomendedMovies in
+        networkManager.loadRecomendedMovies(with: recomendMovieID()) { recomendedMovies in
             self.searchedResult = recomendedMovies
             if self.searchedResult.isEmpty  {
                 self.handleEmptyStateView(show: true)
@@ -102,6 +111,45 @@ class SearchViewController: UIViewController {
     }
     private func handleEmptyStateView(show: Bool) {
         emptyStateView.isHidden = !show
+    }
+    
+    private func recomendMovieID() -> Int {
+        if let favouriteMovieID = favoriteMovies.first?.value(forKeyPath: "id") as? Int {
+            print("fav \(favouriteMovieID)")
+            return favouriteMovieID
+        }
+        else if let watchListMovieID = watchlistMovies.first?.value(forKeyPath: "id") as? Int {
+            print("watch \(watchListMovieID)")
+            return watchListMovieID
+        }
+        else {
+            return 787699
+        }
+    }
+    private func loadFavoriteMovies() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavoriteMovies")
+
+        do {
+            favoriteMovies = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. Error: \(error)")
+        }
+    }
+    
+    private func loadWatchlistMovies() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "WatchList")
+        
+        do {
+            watchlistMovies = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. Error: \(error)")
+        }
     }
 }
 

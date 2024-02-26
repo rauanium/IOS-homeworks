@@ -115,7 +115,6 @@ class FavoriteViewController: UIViewController {
             }
         }
     }
-
     
     //MARK: - TableViewDelegate section
     extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {

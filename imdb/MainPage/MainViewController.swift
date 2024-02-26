@@ -14,7 +14,6 @@ class MainViewController: UIViewController {
     private var lastSelectedIndexPath: IndexPath?
     private var lastSelectedIndexPathForGenres: IndexPath?
     private var favoriteMovies: [NSManagedObject] = []
-    private var WatchlistMovies: [NSManagedObject] = []
     private let defaults = UserDefaults.standard
     private var moviesListID: Int?
     private var titleLabelYPosition: Constraint!
@@ -206,19 +205,6 @@ class MainViewController: UIViewController {
         }
     }
     
-    private func loadWatchlistMovies() {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "WatchList")
-        
-        do {
-            WatchlistMovies = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. Error: \(error)")
-        }
-    }
-    
     private func saveFavoriteMovie(with movie: Result){
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
@@ -257,22 +243,6 @@ class MainViewController: UIViewController {
         } catch let error as NSError {
             print("Could not delete. Error: \(error)")
         }
-    }
-    
-    
-    func recomendMovieID() {
-        if let favouriteMovieID = favoriteMovies[0].value(forKeyPath: "id") as? Int {
-            print("fav \(favouriteMovieID)")
-            defaults.setValue(favouriteMovieID, forKey: "recommendedID")
-        }
-        else if let watchListMovieID = WatchlistMovies[0].value(forKeyPath: "id") as? Int {
-            print("watch \(watchListMovieID)")
-            defaults.setValue(watchListMovieID, forKey: "recommendedID")
-        }
-        else {
-            defaults.setValue(result[0].id, forKey: "recommendedID")
-        }
-        
     }
     
     @objc func imageTapped(){
@@ -333,7 +303,6 @@ class MainViewController: UIViewController {
         }
     }
 }
-
 
 //MARK: - Contraints
 extension MainViewController {

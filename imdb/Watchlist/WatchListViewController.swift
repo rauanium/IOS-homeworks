@@ -81,8 +81,6 @@ extension WatchListViewController {
     private func handleEmptyStateView(show: Bool) {
         emptyStateView.isHidden = !show
     }
-    
-    
 }
 //MARK: - TableView Delegate and DataSource
 extension WatchListViewController: UITableViewDelegate, UITableViewDataSource {
