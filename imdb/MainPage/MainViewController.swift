@@ -14,7 +14,6 @@ class MainViewController: UIViewController {
     private var lastSelectedIndexPath: IndexPath?
     private var lastSelectedIndexPathForGenres: IndexPath?
     private var favoriteMovies: [NSManagedObject] = []
-    private var moviesListID: Int?
     private var titleLabelYPosition: Constraint!
     private var genreCollectionIsHidden = false
     private var currentStatus = "now_playing"
@@ -145,7 +144,6 @@ class MainViewController: UIViewController {
         animate()
         genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
         movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
-        returnRecommendedMovie()
     }
     
     @objc
@@ -171,7 +169,6 @@ class MainViewController: UIViewController {
             switch result {
             case .success(let movies):
                 self?.allResults = movies
-                self?.moviesListID = movies[0].id
                 self?.obtainMovieList(with: MainViewController.idx)
                 self?.handleEmptyStateView(show: false)
             case .failure:
@@ -183,12 +180,14 @@ class MainViewController: UIViewController {
     private func obtainMovieList(with genreId: Int) {
         guard genreId != 1 else {
             result = allResults
+            UserDefaults.standard.setValue(result[0].id, forKey: "recommendNowPlaying")
             return
         }
         
         result = allResults.filter{ movie in
             movie.genreIDS.contains(genreId)
         }
+        UserDefaults.standard.setValue(result[0].id, forKey: "recommendNowPlaying")
     }
     
     private func loadFavoriteMovies() {
@@ -243,10 +242,6 @@ class MainViewController: UIViewController {
         } catch let error as NSError {
             print("Could not delete. Error: \(error)")
         }
-    }
-    
-    func returnRecommendedMovie() {
-        UserDefaults.standard.setValue(result[0].id, forKey: "recommendNowPlaying")
     }
     
     @objc func imageTapped(){

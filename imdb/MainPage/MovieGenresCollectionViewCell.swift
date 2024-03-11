@@ -12,7 +12,7 @@ class MovieGenresCollectionViewCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            backgroundColor = self.isSelected ? .red : .cellBackgroundNotSelected
+            backgroundColor = self.isSelected ? .cellBackgroundIsSelected : .cellBackgroundNotSelected
             movieStatusLabel.textColor = self.isSelected ? .white : .black
         }
     }

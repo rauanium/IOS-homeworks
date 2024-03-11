@@ -114,15 +114,13 @@ class SearchViewController: UIViewController {
     
     private func recomendMovieID() -> Int {
         if let favouriteMovieID = favoriteMovies.first?.value(forKeyPath: "id") as? Int {
-            print("fav \(favouriteMovieID)")
             return favouriteMovieID
         }
         else if let watchListMovieID = watchlistMovies.first?.value(forKeyPath: "id") as? Int {
-            print("watch \(watchListMovieID)")
             return watchListMovieID
         }
         else {
-            print("nowPLaying: \(UserDefaults.standard.integer(forKey: "recommendNowPlaying"))")
+            print(UserDefaults.standard.integer(forKey: "recommendNowPlaying"))
             return UserDefaults.standard.integer(forKey: "recommendNowPlaying")
             
         }

@@ -99,7 +99,7 @@ class MovieDetailsViewController: BaseViewController {
         genresCollectionView.delegate = self
         genresCollectionView.dataSource = self
         genresCollectionView.showsHorizontalScrollIndicator = false
-        genresCollectionView.register(MovieStatusCollectionViewCell.self, forCellWithReuseIdentifier: "genresCollection")
+        genresCollectionView.register(MovieDetailsGenreCollectionViewCell.self, forCellWithReuseIdentifier: "genresCollection")
         return genresCollectionView
     }()
     
@@ -217,15 +217,13 @@ class MovieDetailsViewController: BaseViewController {
         loadCast()
         setupViews()
         setupNavigationController()
-        
         loadWatchListMovies()
-
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigationController()
+        loadWatchListMovies()
         exists = watchListMovies.contains { movie in
             movie.value(forKeyPath: "id") as? Int == movieId
         }
@@ -251,13 +249,11 @@ class MovieDetailsViewController: BaseViewController {
             addToFavourites.setTitle("Add to Watchlist", for: .normal)
             addToFavourites.backgroundColor = .blue
             removeFromWatchList()
-            print("ketirdim")
         }
         else {
             addToFavourites.setTitle("Remove from Watchlist", for: .normal)
             addToFavourites.backgroundColor = .red
             addToWatchList()
-            print("qostym")
         }
     }
     
@@ -282,7 +278,6 @@ class MovieDetailsViewController: BaseViewController {
         singleMovie.setValue(movieId, forKey: "id")
         singleMovie.setValue(movie.originalTitle, forKey: "title")
         singleMovie.setValue(movie.posterPath, forKey: "posterPath")
-        print("movie added")
         do {
             try managedContext.save()
         } catch let error as NSError {
@@ -308,12 +303,10 @@ class MovieDetailsViewController: BaseViewController {
             let results = try managedContext.fetch(fetchRequest)
             let data = results.first
             if let data {
-                print("data: \(data)")
                 managedContext.delete(data)
                 
             }
             try managedContext.save()
-            print("movie deleted")
             
         } catch let error as NSError {
             print("Could not delete. Error:  \(error)")
@@ -505,7 +498,6 @@ class MovieDetailsViewController: BaseViewController {
         facebookImageView.isUserInteractionEnabled = true
         
         self.dispatchGroup.notify(queue: .main) {
-//            usleep(3000_000)
             self.hideLoader()
         }
         }
@@ -594,7 +586,6 @@ extension MovieDetailsViewController {
         concurrentDispatch.async {
             self.networkManager.loadMovieCast(id: self.movieId) { [weak self] movieCast in
                 self?.cast = movieCast.cast
-                print("movieCast: \(movieCast)")
             }
             self.dispatchGroup.leave()
         }
@@ -641,11 +632,9 @@ extension MovieDetailsViewController {
 extension MovieDetailsViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == castCollectionView {
-            print("castCount: \(cast.count)")
             return cast.count
         }
         else {
-            print("genresCount")
             return movieGenres.count
         }
     }
@@ -658,7 +647,7 @@ extension MovieDetailsViewController: UICollectionViewDataSource, UICollectionVi
             return castCell
             
         } else {
-            let cell = genresCollectionView.dequeueReusableCell(withReuseIdentifier: "genresCollection", for: indexPath) as! MovieStatusCollectionViewCell
+            let cell = genresCollectionView.dequeueReusableCell(withReuseIdentifier: "genresCollection", for: indexPath) as! MovieDetailsGenreCollectionViewCell
             cell.configure(with: movieGenres[indexPath.row].name)
             return cell
         }
@@ -672,12 +661,12 @@ extension MovieDetailsViewController: UICollectionViewDataSource, UICollectionVi
         }
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        let actorDetailViewController = ActorDetailsViewController()
-        let actor = cast[indexPath.row]
-        actorDetailViewController.actorId = actor.id
-        print("---> Mark Walberg actorID: \(actor.id)")
-        navigationController?.pushViewController(actorDetailViewController, animated: true)
+        if collectionView == castCollectionView {
+            let actorDetailViewController = ActorDetailsViewController()
+            let actor = cast[indexPath.row]
+            actorDetailViewController.actorId = actor.id
+            navigationController?.pushViewController(actorDetailViewController, animated: true)
+        }
     }
 }
 

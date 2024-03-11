@@ -29,7 +29,7 @@ class MainTabBarViewController: UITabBarController {
     //MARK: - Private methods
     private func setupTabBarViews() {
         view.backgroundColor = .systemGray
-        tabBar.tintColor = .black
+        tabBar.tintColor = .cellBackgroundIsSelected
         tabBar.backgroundColor = .white
         setViewControllers(allViewControllers, animated: false)
         

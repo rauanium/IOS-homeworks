@@ -1,20 +1,13 @@
 //
-//  MovieStatusCollectionViewCell.swift
+//  MovieDetailsGenreCollectionViewCell.swift
 //  imdb
 //
-//  Created by rauan on 12/12/23.
+//  Created by rauan on 3/11/24.
 //
 
 import UIKit
 
-class MovieStatusCollectionViewCell: UICollectionViewCell {
-    
-    override var isSelected: Bool {
-        didSet {
-            backgroundColor = self.isSelected ? .cellBackgroundIsSelected : .cellBackgroundNotSelected
-            movieStatusLabel.textColor = self.isSelected ? .white : .black
-        }
-    }
+class MovieDetailsGenreCollectionViewCell: UICollectionViewCell {
     
     let movieStatusLabel: UILabel = {
         let label = UILabel()
