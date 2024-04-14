@@ -85,7 +85,6 @@ class SearchViewController: UIViewController {
             switch result {
             case .success(let movies):
                 self.searchedResult = movies
-                print("rec: \(movies)")
                 if self.searchedResult.isEmpty  {
                     self.handleEmptyStateView(show: true)
                 } else {
@@ -120,7 +119,6 @@ class SearchViewController: UIViewController {
             return watchListMovieID
         }
         else {
-            print(UserDefaults.standard.integer(forKey: "recommendNowPlaying"))
             return UserDefaults.standard.integer(forKey: "recommendNowPlaying")
             
         }

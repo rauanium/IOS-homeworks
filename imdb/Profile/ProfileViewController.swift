@@ -179,7 +179,6 @@ class ProfileViewController: UIViewController {
     
     @objc
     private func didTapSubmitButton() {
-        print("login button pressed")
         emailText = emailTextField.text
         passwordText = passwordTextField.text
         
@@ -194,7 +193,6 @@ class ProfileViewController: UIViewController {
                     self?.dispatchGroup.leave()
                 }
             case .failure:
-                print("failed in button Function")
                 self?.showAlert(title: "Error", message: "Network connection error")
             }
         }
@@ -210,7 +208,6 @@ class ProfileViewController: UIViewController {
             switch result {
             case.success(let dataModel):
                 if dataModel.success {
-                    print("my data model\(dataModel)")
                     if dataModel.success {
                         let requestData = ["request_token": dataModel.requestToken]
                         self?.createSession(with: requestData)
@@ -218,7 +215,6 @@ class ProfileViewController: UIViewController {
                     }
                 }
             case .failure:
-                print("validateWithLogin Function")
                 self?.showAlert(title: "Error", message: "Could not find login or password")
             }
         })
@@ -227,14 +223,12 @@ class ProfileViewController: UIViewController {
     private func createSession(with requestBody: [String: Any]) {
         dispatchGroup.enter()
         networkManager.createSession(requestBody: requestBody) { [weak self] result in
-            print("create session result: \(result)")
+            
             switch result {
             case .success(let sessionID):
-                print("My sessionId is \(sessionID)")
                 self?.saveSessionID(with: sessionID)
                 self?.dispatchGroup.leave()
             case .failure:
-                print("Failure in create session")
                 self?.showAlert(title: "Cant create session", message: "Something went wrong")
             }
         }
@@ -242,14 +236,11 @@ class ProfileViewController: UIViewController {
     
     private func saveSessionID(with sessionID: String) {
         dispatchGroup.enter()
-        print("saveSessionFunction")
-        print("this is sessionID: \(sessionID)")
-        print("this is emailText: \(emailText!)")
         KeychainWrapper.standard.set(sessionID, forKey: "sessionID")
         let sessionIDValue = KeychainWrapper.standard.set(sessionID, forKey: "sessionID")
         KeychainWrapper.standard.set(emailText!, forKey: "username")
         let usernameValue = KeychainWrapper.standard.set(emailText!, forKey: "username")
-        print("usernameValue: \(usernameValue)")
+    
         if sessionIDValue  {
             statusText.text = "Saved successfully"
             statusText.textColor = .green
@@ -263,7 +254,6 @@ class ProfileViewController: UIViewController {
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-            print("alert was called")
         }))
     }
 }

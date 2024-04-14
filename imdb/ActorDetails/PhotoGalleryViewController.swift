@@ -18,6 +18,7 @@ class PhotoGalleryViewController: UIViewController {
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
+        
         let photoGalleryCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         photoGalleryCollectionView.backgroundColor = .clear
         photoGalleryCollectionView.showsHorizontalScrollIndicator = false
@@ -56,8 +57,9 @@ class PhotoGalleryViewController: UIViewController {
         view.backgroundColor = .black
         self.title = "\(photoID.row + 1)/\(actorPhotos.count)"
         view.addSubview(photoGalleryCollectionView)
+        
         photoGalleryCollectionView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }

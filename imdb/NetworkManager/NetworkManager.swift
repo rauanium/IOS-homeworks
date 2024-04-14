@@ -34,9 +34,9 @@ class NetworkManager {
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4YzIyYzEwNjdjZWM3OWRlMDgyODg5Mjg5NGUzMWJkYyIsInN1YiI6IjY1YjIzYzE3MGYyZmJkMDEzMDY2YTBiNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Mp_XUBq4oK4yBkE0QWgpQE-uhK_5ayYAdfjJPRkVyv0"
     ]
     
-    func loadMovies(with movieStatus: String, completion: @escaping (APIResult<[Result]>) -> Void){
+    func loadMovies(status: String, completion: @escaping (APIResult<[Result]>) -> Void){
         var components = urlComponents
-        components.path = "/3/movie/\(movieStatus)"
+        components.path = "/3/movie/\(status)"
         guard let requestURL = components.url else { return }
         
         AF.request(requestURL, headers: headers).responseData { response in
@@ -81,9 +81,6 @@ class NetworkManager {
     }
     
     func loadMovieDetails(id: Int, completion: @escaping (MovieDetailsEntity) -> Void){
-        print("---------------load movies-------------")
-        print("APIKEY: \(apiKey)")
-        print("keychainUserName: \(keychainSessionID ?? "could not find keychain")")
         var components = urlComponents
         components.path = "/3/movie/\(id)"
         guard let requestURL = components.url else { return }
@@ -352,7 +349,6 @@ class NetworkManager {
     }
     
     func loadSearchQuery(with letter: String, completion: @escaping (APIResult<[SearchResult]>) -> Void){
-        print("APIKEY: \(apiKey)")
         var components = urlComponents
         components.queryItems = [
             URLQueryItem(name: "query", value: letter),
@@ -390,7 +386,6 @@ class NetworkManager {
             
           ]
         guard let requestURL = components.url else { return }
-        print("recommendedurl: \(requestURL)")
         AF.request(requestURL, headers: headers).responseData { response in
             switch response.result {
             case .success(let data):

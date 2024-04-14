@@ -355,7 +355,6 @@ extension ActorDetailsViewController {
         dispatchGroup.enter()
         networkManager.loadActorsMovies(id: actorId) { actorsMovies in
             self.actorsMoviesList = actorsMovies.cast
-            print(self.actorsMoviesList[0].originalTitle)
             self.dispatchGroup.leave()
         }
     }
@@ -365,7 +364,6 @@ extension ActorDetailsViewController {
 extension ActorDetailsViewController {
     
     func creatingGestures(){
-        print("called creatingGestures function")
         let imdbGR = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
         let instagramGR = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
         imdbImage.addGestureRecognizer(imdbGR)
@@ -376,14 +374,12 @@ extension ActorDetailsViewController {
     @objc func imageTapped(_ sender: UITapGestureRecognizer){
         networkManager.loadActorsSocialMedia(id: actorId) { actorsSocialMedia in
             if sender.view == self.imdbImage {
-                print("tapped imdb")
                 let urlString = "https://www.imdb.com/name/" + actorsSocialMedia.imdbID
                 if let url = URL(string: urlString) {
                     UIApplication.shared.open(url)
                 }
             }
             else if sender.view == self.instagramImage {
-                print("tapped instagram")
                 let urlString = "https://www.instagram.com/" + actorsSocialMedia.instagramID
                 if let url = URL(string: urlString) {
                     UIApplication.shared.open(url)
@@ -401,7 +397,7 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
         if collectionView == actorsMoviesCollectionView {
             return actorsMoviesList.count
         } else {
-            print("actrosmoviesList: \(actorsMoviesList.count)")
+            
             if actorImages.count >= 4 {
                 return 4
             } else {
@@ -416,6 +412,7 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
             let actorsMovieEntity = actorsMoviesList[indexPath.row]
             cell.configure(posterPath: actorsMovieEntity.posterPath ?? "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png", originalTitle: actorsMovieEntity.originalTitle, releaseYear: actorsMovieEntity.releaseDate!)
             return cell
+            
         } else {
             let cell = actorPhotosCollectionView.dequeueReusableCell(withReuseIdentifier: "actorsPhotoCell", for: indexPath) as! ActorPhotosCollectionViewCell
             cell.configure(imagePath: actorImages[indexPath.row].filePath, fourthImage: indexPath.row, totalNumberOfPhotos: actorImages.count)            
@@ -432,17 +429,12 @@ extension ActorDetailsViewController: UICollectionViewDelegate, UICollectionView
         
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let photoGalleryViewController = PhotoGalleryViewController()
-        photoGalleryViewController.actorPhotos = actorImages
-        photoGalleryViewController.photoID = indexPath
-        
-        navigationController?.pushViewController(photoGalleryViewController, animated: true)
-        
-        
-                
-        
-        
+        if collectionView == actorPhotosCollectionView {
+            let photoGalleryViewController = PhotoGalleryViewController()
+            photoGalleryViewController.actorPhotos = actorImages
+            photoGalleryViewController.photoID = indexPath
+            
+            navigationController?.pushViewController(photoGalleryViewController, animated: true)
+        }
     }
-    
-    
 }

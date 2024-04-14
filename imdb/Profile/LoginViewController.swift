@@ -108,7 +108,6 @@ class LoginViewController: UIViewController {
     
     @objc
     private func didTapLoginButton() {
-        print("login button pressed")
         emailText = emailTextField.text
         passwordText = passwordTextField.text
         
@@ -123,7 +122,6 @@ class LoginViewController: UIViewController {
                     self?.dispatchGroup.leave()
                 }
             case .failure:
-                print("failed in button Function")
                 self?.showAlert(title: "Error", message: "Network connection error")
             }
         }
@@ -139,7 +137,6 @@ class LoginViewController: UIViewController {
             switch result {
             case.success(let dataModel):
                 if dataModel.success {
-                    print("my data model\(dataModel)")
                     if dataModel.success {
                         let requestData = ["request_token": dataModel.requestToken]
                         self?.createSession(with: requestData)
@@ -147,7 +144,6 @@ class LoginViewController: UIViewController {
                     }
                 }
             case .failure:
-                print("validateWithLogin Function")
                 self?.showAlert(title: "Error", message: "Could not find login or password")
             }
         })
@@ -156,14 +152,14 @@ class LoginViewController: UIViewController {
     private func createSession(with requestBody: [String: Any]) {
         dispatchGroup.enter()
         networkManager.createSession(requestBody: requestBody) { [weak self] result in
-            print("create session result: \(result)")
+            
             switch result {
             case .success(let sessionID):
-                print("My sessionId is \(sessionID)")
+                
                 self?.saveSessionID(with: sessionID)
                 self?.dispatchGroup.leave()
             case .failure:
-                print("Failure in create session")
+                
                 self?.showAlert(title: "Cant create session", message: "Something went wrong")
             }
         }
@@ -172,9 +168,6 @@ class LoginViewController: UIViewController {
 //    Standartny2020
     
     private func saveSessionID(with sessionID: String) {
-        print("saveSessionFunction")
-        print("this is sessionID: \(sessionID)")
-        print("this is emailText: \(emailText!)")
         dispatchGroup.enter()
         KeychainWrapper.standard.set(sessionID, forKey: "sessionID")
         let sessionIDValue = KeychainWrapper.standard.set(sessionID, forKey: "sessionID")
@@ -192,7 +185,7 @@ class LoginViewController: UIViewController {
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-            print("alert was called")
+        
         }))
     }
 }

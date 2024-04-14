@@ -83,7 +83,6 @@ class FavoriteViewController: UIViewController {
         
         do {
             let results = try managedContext.fetch(fetchRequest)
-            print(results)
             let data = results.first
             if let data {
                 managedContext.delete(data)

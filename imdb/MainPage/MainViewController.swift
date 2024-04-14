@@ -9,16 +9,17 @@ import UIKit
 import CoreData
 
 class MainViewController: UIViewController {
+    
+    //MARK: - Properties
     static var sharedRecomendMovieID = MainViewController()
-    static var idx: Int = 1
-    private var lastSelectedIndexPath: IndexPath?
-    private var lastSelectedIndexPathForGenres: IndexPath?
     private var favoriteMovies: [NSManagedObject] = []
     private var titleLabelYPosition: Constraint!
     private var genreCollectionIsHidden = false
-    private var currentStatus = "now_playing"
+    private var currentGenreId: Int?
     private var networkManager = NetworkManager.shared
     private let themes = Themes.allCases
+    private var selectedStatus = IndexPath(row: 0, section: 0)
+    private var selectedGenre = IndexPath(row: 0, section: 0)
     
     private var allResults: [Result] = []
     private lazy var result: [Result] = []{
@@ -32,6 +33,7 @@ class MainViewController: UIViewController {
         }
     }
     
+    //MARK: - UI elements
     private let containerView = UIView()
     
     private var titleLabel: UILabel = {
@@ -130,10 +132,11 @@ class MainViewController: UIViewController {
         return control
     }()
     
+    //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         loadGenres()
-        loadData()
+        loadData(status: .nowPlaying, genreId: currentGenreId)
         setupViews()
         genresCollectionView.allowsMultipleSelection = false
         movieStatusCollectionView.allowsMultipleSelection = false
@@ -142,13 +145,14 @@ class MainViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animate()
-        genresCollectionView.selectItem(at: lastSelectedIndexPathForGenres, animated: true, scrollPosition: [])
-        movieStatusCollectionView.selectItem(at: lastSelectedIndexPath, animated: true, scrollPosition: [])
+        genresCollectionView.selectItem(at: selectedStatus, animated: true, scrollPosition: [])
+        movieStatusCollectionView.selectItem(at: selectedGenre, animated: true, scrollPosition: [])
     }
     
+    //MARK: - Methods
     @objc
     private func didRefresh() {
-        loadData()
+        loadData(status: .nowPlaying, genreId: currentGenreId)
     }
     
     private func handleEmptyStateView(show: Bool) {
@@ -163,14 +167,20 @@ class MainViewController: UIViewController {
         }
     }
     
-    private func loadData(){
-        networkManager.loadMovies(with: currentStatus) { [weak self] result in
+    private func loadData(status: Themes, genreId: Int?){
+        networkManager.loadMovies(status: status.urlPath) { [weak self] result in
             self?.refreshControl.endRefreshing()
             switch result {
             case .success(let movies):
                 self?.allResults = movies
-                self?.obtainMovieList(with: MainViewController.idx)
+                if let genreId = genreId {
+                    self?.obtainMovieList(with: genreId)
+                } else {
+                    self?.result = movies
+                }
+                //handleRecomendations
                 self?.handleEmptyStateView(show: false)
+                
             case .failure:
                 self?.handleEmptyStateView(show: true)
             }
@@ -189,6 +199,7 @@ class MainViewController: UIViewController {
         }
         UserDefaults.standard.setValue(result[0].id, forKey: "recommendNowPlaying")
     }
+    
     
     private func loadFavoriteMovies() {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
@@ -345,7 +356,7 @@ extension MainViewController {
         movieStatusCollectionView.snp.makeConstraints { make in
             make.top.equalTo(themeLabel.snp.bottom).offset(10)
             make.right.left.equalToSuperview().inset(16)
-            make.height.equalTo(44)
+            make.height.equalTo(50)
         }
         foldableStackView.snp.makeConstraints { make in
             make.top.equalTo(movieStatusCollectionView.snp.bottom)
@@ -391,15 +402,14 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         
         cell.didTapFavorite = { [weak self] in
             guard let self else { return }
-            print("passed")
             let isInFavoriteMovies = !self.favoriteMovies.filter({ ($0.value(forKeyPath: "id") as? Int) == movie.id }).isEmpty
             cell.toggleFavoriteIcon(with: !isFavoriteMovie)
             
             if isInFavoriteMovies {
-                print("isInFavoriteMovies: \(isInFavoriteMovies) removed")
+                
                 self.removeFavoriteMovie(with: movie)
             } else {
-                print("isInFavoriteMovies: \(isInFavoriteMovies) saved")
+                
                 self.saveFavoriteMovie(with: movie)
             }
             self.loadFavoriteMovies()
@@ -431,26 +441,13 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
         if collectionView == movieStatusCollectionView {
             let cell = movieStatusCollectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as! MovieStatusCollectionViewCell
             cell.configure(with: themes[indexPath.row].key)
-            
-            if indexPath.row == 0 {
-                lastSelectedIndexPath = indexPath
-                cell.isSelected = true
-            }
-            //update last select state from lastSelectedIndexPath
-            cell.isSelected = (lastSelectedIndexPath == indexPath)
             return cell
         }
         
         else {
             let cell = genresCollectionView.dequeueReusableCell(withReuseIdentifier: "genresCollection", for: indexPath) as! MovieGenresCollectionViewCell
             cell.configure(with: movieGenres[indexPath.row].name)
-            
-            if indexPath.row == 0 {
-                lastSelectedIndexPathForGenres = indexPath
-                cell.isSelected = true
-            }
-            //update last select state from lastSelectedIndexPath
-            cell.isSelected = (lastSelectedIndexPathForGenres == indexPath)
+            cell.isSelected = true
             return cell
         }
     }
@@ -460,31 +457,17 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         
         if collectionView == movieStatusCollectionView {
-            currentStatus = themes[indexPath.row].urlPath
-            loadData()
             
-            if let index = lastSelectedIndexPath {
-                let cell = collectionView.cellForItem(at: index) as! MovieStatusCollectionViewCell
-                cell.isSelected = false
-                
-            }
-            let cell = collectionView.cellForItem(at: indexPath) as! MovieStatusCollectionViewCell
-            cell.isSelected = true
-            lastSelectedIndexPath = indexPath
+            loadData(status: themes[indexPath.row], genreId: currentGenreId)
+            selectedStatus = indexPath
         }
         else {
-            if let index = lastSelectedIndexPathForGenres {
-                let cell = collectionView.cellForItem(at: index) as! MovieGenresCollectionViewCell
-                cell.isSelected = false
-            }
-            let cell = collectionView.cellForItem(at: indexPath) as! MovieGenresCollectionViewCell
-            cell.isSelected = true
-            lastSelectedIndexPathForGenres = indexPath
-            MainViewController.idx = movieGenres[indexPath.row].id
             obtainMovieList(with: movieGenres[indexPath.row].id)
+            currentGenreId = movieGenres[indexPath.row].id
+            selectedGenre = indexPath
         }
     }
-        
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == genresCollectionView{
             CGSize(width: 140, height: collectionView.frame.height)

@@ -56,7 +56,7 @@ class MovieTableViewCell: UITableViewCell {
     }
     
     @objc private func didTapFavoriteIcon(){
-        print("didTapFavorite")
+        
         didTapFavorite?()
     }
     

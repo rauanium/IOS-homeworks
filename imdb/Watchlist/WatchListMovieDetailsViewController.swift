@@ -266,12 +266,10 @@ class WatchListMovieDetailsViewController: BaseViewController {
             let results = try managedContext.fetch(fetchRequest)
             let data = results.first
             if let data {
-                print("data: \(data)")
                 managedContext.delete(data)
                 
             }
             try managedContext.save()
-            print("movie deleted")
             
         } catch let error as NSError {
             print("Could not delete. Error:  \(error)")
@@ -599,11 +597,9 @@ extension WatchListMovieDetailsViewController {
 extension WatchListMovieDetailsViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == castCollectionView {
-            print("castCount: \(cast.count)")
             return cast.count
         }
         else {
-            print("genresCount")
             return movieGenres.count
         }
     }
@@ -634,7 +630,6 @@ extension WatchListMovieDetailsViewController: UICollectionViewDataSource, UICol
         let actorDetailViewController = ActorDetailsViewController()
         let actor = cast[indexPath.row]
         actorDetailViewController.actorId = actor.id
-        print("---> Mark Walberg actorID: \(actor.id)")
         navigationController?.pushViewController(actorDetailViewController, animated: true)
     }
 }
