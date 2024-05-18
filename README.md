@@ -35,7 +35,7 @@ Swift, MVC, UIKit, SnapKit, Cocoapods, Kingfisher, Alamofire, Lottie, CoreData, 
 
 ## Lessons Learned
 
-- Got fimiliar with Alamofire
+- Got familiar with Alamofire
 - General Networking(Tokens, API, APIKey, Sessions)
 - Decoding JSON
 - Userdefaults, Keychain and CoreData
